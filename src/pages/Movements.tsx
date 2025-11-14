@@ -11,12 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react';
-import { mockMovements } from '@/lib/mockData';
-import { Movement, MovementType } from '@/types';
+import { ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react';
+import { MovementType } from '@/types';
+import { useData } from '@/contexts/DataContext';
 
 export default function Movements() {
-  const [movements] = useState<Movement[]>(mockMovements);
+  const { movements } = useData();
   const [activeTab, setActiveTab] = useState<MovementType | 'all'>('all');
 
   const filteredMovements = activeTab === 'all' 

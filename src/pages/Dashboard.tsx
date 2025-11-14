@@ -2,21 +2,36 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Package, TrendingUp, TrendingDown } from 'lucide-react';
-import { mockMaterials, mockMovements, mockStockAlerts } from '@/lib/mockData';
 import { Link } from 'react-router-dom';
+import { useData } from '@/contexts/DataContext';
+import { StockAlert } from '@/types';
 
 export default function Dashboard() {
-  const totalMaterials = mockMaterials.length;
-  const lowStockItems = mockStockAlerts.length;
+  const { materials, movements } = useData();
+
+  const totalMaterials = materials.length;
   
-  const recentMovements = mockMovements.slice(0, 5);
+  const stockAlerts: StockAlert[] = materials
+    .filter(m => m.currentStock <= m.minStock)
+    .map(m => ({
+      id: m.id,
+      materialId: m.id,
+      materialName: m.name,
+      currentStock: m.currentStock,
+      minStock: m.minStock,
+      sector: m.sector,
+    }));
   
-  const todayEntries = mockMovements.filter(m => 
+  const lowStockItems = stockAlerts.length;
+  
+  const recentMovements = movements.slice(0, 5);
+  
+  const todayEntries = movements.filter(m => 
     m.type === 'entrada' && 
     new Date(m.createdAt).toDateString() === new Date().toDateString()
   ).length;
 
-  const todayExits = mockMovements.filter(m => 
+  const todayExits = movements.filter(m => 
     m.type === 'saida' && 
     new Date(m.createdAt).toDateString() === new Date().toDateString()
   ).length;
@@ -86,11 +101,11 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {mockStockAlerts.length === 0 ? (
+              {stockAlerts.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Nenhum alerta no momento</p>
               ) : (
                 <div className="space-y-3">
-                  {mockStockAlerts.map((alert) => (
+                  {stockAlerts.map((alert) => (
                     <div key={alert.id} className="flex items-start justify-between border-b pb-3 last:border-0">
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-foreground">{alert.materialName}</p>

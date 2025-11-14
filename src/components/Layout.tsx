@@ -13,6 +13,7 @@ import {
   X
 } from 'lucide-react';
 import { useState } from 'react';
+import { ModeToggle } from './theme-toggle';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout, hasRole } = useAuth();
@@ -53,6 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <h1 className="text-xl font-bold text-foreground">PRF - Controle de Insumos</h1>
           </div>
           <div className="flex items-center gap-4">
+            <ModeToggle />
             <div className="text-sm text-right hidden sm:block">
               <p className="font-medium text-foreground">{user?.name}</p>
               <p className="text-muted-foreground text-xs">{user?.role}</p>

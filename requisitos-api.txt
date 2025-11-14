@@ -1,0 +1,204 @@
+# Requisitos para a API de Integração com o Front-end
+
+Este documento descreve os requisitos necessários para a API que será consumida pelo front-end da aplicação de controle de insumos.
+
+**Nota:** As rotas do front-end (e.g., `/dashboard`, `/materials`) são para a navegação da aplicação, enquanto os endpoints da API (e.g., `/api/materials`) são para a manipulação de dados.
+
+## 1. Autenticação
+
+A API deve implementar um sistema de autenticação para proteger os endpoints.
+
+- **Tipo de Autenticação:** JWT (JSON Web Tokens).
+- **Endpoint de Login:**
+  - `POST /api/login`
+  - **Request Body:** `{ "username": "user", "password": "password" }`
+  - **Response (Success):** `{ "token": "jwt_token", "user": { "id": "1", "name": "Nome do Usuário", "role": "admin" } }`
+  - **Response (Error):** `{ "error": "Invalid credentials" }` (Status 401)
+- **Proteção de Endpoints:** Todos os endpoints, exceto o de login, devem ser protegidos e esperar um token JWT no header `Authorization` (e.g., `Authorization: Bearer jwt_token`).
+
+## 2. Endpoints da API
+
+A API deve fornecer os seguintes endpoints para gerenciar os dados da aplicação:
+
+### Materiais
+
+- `GET /api/materials`: Retorna a lista de todos os materiais.
+  - Suporte a paginação (e.g., `?page=1&limit=10`).
+  - Suporte a filtros (e.g., `?search=luvas`).
+- `GET /api/materials/:id`: Retorna os detalhes de um material específico.
+- `POST /api/materials`: Cria um novo material.
+- `PUT /api/materials/:id`: Atualiza um material existente.
+- `DELETE /api/materials/:id`: Apaga um material.
+
+### Movimentações
+
+- `GET /api/movements`: Retorna a lista de todas as movimentações.
+  - Suporte a paginação.
+  - Suporte a filtros por tipo (entrada, saida, ajuste).
+- `POST /api/movements`: Cria uma nova movimentação.
+
+### Usuários
+
+- `GET /api/users`: Retorna a lista de todos os usuários (apenas para admin).
+- `POST /api/users`: Cria um novo usuário (apenas para admin).
+- `PUT /api/users/:id`: Atualiza um usuário (apenas para admin).
+- `DELETE /api/users/:id`: Apaga um usuário (apenas para admin).
+
+### Dashboard
+
+- `GET /api/dashboard`: Retorna os dados consolidados para o dashboard (total de materiais, alertas de estoque, etc.).
+
+### Relatórios
+
+- `GET /api/reports/stock`: Gera relatórios de estoque.
+- `GET /api/reports/movements`: Gera relatórios de movimentações.
+
+### Configurações
+
+- `GET /api/settings`: Retorna as configurações da aplicação.
+- `PUT /api/settings`: Atualiza as configurações da aplicação.
+
+## 3. Estrutura de Dados (Exemplos)
+
+As respostas da API devem seguir um formato consistente em JSON.
+
+### Material
+
+```json
+{
+  "id": "string",
+  "name": "string",
+  "category": "string",
+  "unit": "string",
+  "barcode": "string",
+  "supplier": "string",
+  "minStock": "number",
+  "currentStock": "number",
+  "sector": "string",
+  "createdAt": "string (ISO 8601)",
+  "updatedAt": "string (ISO 8601)"
+}
+```
+
+### Movimentação
+
+```json
+{
+  "id": "string",
+  "materialId": "string",
+  "materialName": "string",
+  "type": "'entrada' | 'saida' | 'ajuste'",
+  "quantity": "number",
+  "responsible": "string",
+  "invoiceNumber": "string | null",
+  "destination": "string | null",
+  "justification": "string | null",
+  "createdAt": "string (ISO 8601)"
+}
+```
+
+## 4. Tratamento de Erros
+
+A API deve retornar códigos de status HTTP apropriados e mensagens de erro claras em JSON.
+
+- **400 Bad Request:** Erros de validação (e.g., campo obrigatório faltando).
+  - Response: `{ "error": "O campo 'name' é obrigatório." }`
+- **401 Unauthorized:** Token de autenticação inválido ou ausente.
+- **403 Forbidden:** O usuário não tem permissão para acessar o recurso.
+- **404 Not Found:** O recurso solicitado não foi encontrado.
+- **500 Internal Server Error:** Erros inesperados no servidor.
+
+## 5. Paginação
+
+Para endpoints que retornam listas, a API deve suportar paginação para evitar a transferência de grandes volumes de dados.
+
+- **Query Params:** `page` (número da página) e `limit` (itens por página).
+- **Response:** A resposta deve incluir informações de paginação.
+  ```json
+  {
+    "data": [ ... ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 10,
+      "totalItems": 100
+    }
+  }
+  ```
+
+## 6. Validação
+
+A API deve validar todos os dados de entrada para garantir a integridade dos dados.
+
+- Campos obrigatórios não podem ser nulos ou vazios.
+- Tipos de dados devem ser respeitados (e.g., `minStock` deve ser um número).
+- Regras de negócio devem ser aplicadas (e.g., não permitir estoque negativo sem ser um ajuste).
+
+## 7. Documentação
+
+É crucial que a API tenha uma documentação clara e atualizada.
+
+- **Ferramenta Sugerida:** Swagger ou Postman.
+- A documentação deve detalhar cada endpoint, incluindo:
+  - URL e método HTTP.
+  - Parâmetros de rota e query.
+  - Estrutura do request body.
+  - Estrutura do response body para sucesso e erro.
+  - Códigos de status HTTP possíveis.
+  - Requisitos de autenticação e permissões.
+
+## 8. Requisitos do Banco de Dados
+
+### Tecnologia
+
+- **Banco de Dados:** PostgreSQL.
+- **ORM:** O uso do Prisma é recomendado para a camada de acesso a dados.
+
+### Modelagem de Dados (Tabelas e Relacionamentos)
+
+- **Tabela `users`:**
+  - `id` (PK, UUID/INT)
+  - `name` (VARCHAR)
+  - `username` (VARCHAR, UNIQUE)
+  - `password` (VARCHAR, Hashed)
+  - `role` (VARCHAR)
+  - `createdAt` (TIMESTAMP)
+  - `updatedAt` (TIMESTAMP)
+
+- **Tabela `materials`:**
+  - `id` (PK, UUID/INT)
+  - `name` (VARCHAR)
+  - `category` (VARCHAR)
+  - `unit` (VARCHAR)
+  - `barcode` (VARCHAR, UNIQUE)
+  - `supplier` (VARCHAR)
+  - `minStock` (INT)
+  - `currentStock` (INT)
+  - `sector` (VARCHAR)
+  - `createdAt` (TIMESTAMP)
+  - `updatedAt` (TIMESTAMP)
+
+- **Tabela `movements`:**
+  - `id` (PK, UUID/INT)
+  - `materialId` (FK para `materials.id`)
+  - `type` (VARCHAR: 'entrada', 'saida', 'ajuste')
+  - `quantity` (INT)
+  - `responsibleId` (FK para `users.id`)
+  - `invoiceNumber` (VARCHAR, NULLABLE)
+  - `destination` (VARCHAR, NULLABLE)
+  - `justification` (TEXT, NULLABLE)
+  - `createdAt` (TIMESTAMP)
+
+- **Relacionamentos:**
+  - `movements.materialId` ---< `materials.id` (Um material pode ter muitas movimentações)
+  - `movements.responsibleId` ---< `users.id` (Um usuário pode ser responsável por muitas movimentações)
+
+### Segurança
+
+- **Senhas:** As senhas dos usuários devem ser armazenadas com hash (e.g., usando bcrypt).
+- **Acesso:** O acesso ao banco de dados deve ser restrito, com credenciais seguras e, se possível, limitado a IPs específicos (da aplicação).
+- **SQL Injection:** A API deve usar um ORM como o Prisma, que possui mecanismos de prevenção contra ataques de SQL Injection.
+
+### Backups
+
+- **Estratégia:** Deve haver uma estratégia de backup regular (e.g., backups diários).
+- **Testes de Restauração:** Os backups devem ser testados periodicamente para garantir que a restauração funcione em caso de desastre.
