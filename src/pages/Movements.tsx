@@ -12,12 +12,34 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react';
-import { MovementType } from '@/types';
+import { MovementType, Movement } from '@/types';
 import { useData } from '@/contexts/DataContext';
+import { NewEntryModal } from '@/components/NewEntryModal';
+import { NewExitModal } from '@/components/NewExitModal';
+import { mockMaterials } from '@/lib/mockData'; // Import mockMaterials
 
 export default function Movements() {
   const { movements } = useData();
   const [activeTab, setActiveTab] = useState<MovementType | 'all'>('all');
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+
+  const handleAddMovement = (newMovementData: Omit<Movement, 'id' | 'materialName' | 'responsible' | 'createdAt'>) => {
+    const selectedMaterial = mockMaterials.find(mat => mat.id === newMovementData.materialId);
+    const materialName = selectedMaterial ? selectedMaterial.name : 'Unknown Material';
+    const responsible = 'Current User (Placeholder)'; // In a real app, get from auth context
+
+    const fullNewMovement: Movement = {
+      ...newMovementData,
+      id: `mov-${Date.now()}`, // Generate a unique ID
+      materialName: materialName,
+      responsible: responsible,
+      createdAt: new Date().toISOString(), // System timestamp
+    };
+    console.log('New Movement Added:', fullNewMovement);
+    // In a real application, you would send this to your backend
+    // and then refresh the movements list.
+  };
 
   const filteredMovements = activeTab === 'all' 
     ? movements 
@@ -54,11 +76,11 @@ export default function Movements() {
             <p className="text-muted-foreground">Registrar e visualizar entradas, saídas e ajustes</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setIsEntryModalOpen(true)}>
               <ArrowUpCircle className="mr-2 h-4 w-4" />
               Nova Entrada
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setIsExitModalOpen(true)}>
               <ArrowDownCircle className="mr-2 h-4 w-4" />
               Nova Saída
             </Button>
@@ -119,12 +141,10 @@ export default function Movements() {
                         </TableCell>
                         <TableCell>{movement.responsible}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {movement.invoiceNumber && `NF: ${movement.invoiceNumber}`}
-                          {movement.destination && `Destino: ${movement.destination}`}
-                          {movement.justification && `Justificativa: ${movement.justification}`}
+                          {movement.notes && `Obs: ${movement.notes}`}
                         </TableCell>
                         <TableCell>
-                          {new Date(movement.createdAt).toLocaleString('pt-BR')}
+                          {new Date(movement.movementDate).toLocaleString('pt-BR')}
                         </TableCell>
                       </TableRow>
                     ))
@@ -139,6 +159,17 @@ export default function Movements() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <NewEntryModal
+        isOpen={isEntryModalOpen}
+        onClose={() => setIsEntryModalOpen(false)}
+        onAddMovement={handleAddMovement}
+      />
+      <NewExitModal
+        isOpen={isExitModalOpen}
+        onClose={() => setIsExitModalOpen(false)}
+        onAddMovement={handleAddMovement}
+      />
     </Layout>
   );
 }

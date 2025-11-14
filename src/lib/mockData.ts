@@ -76,7 +76,8 @@ export const mockMovements: Movement[] = [
     type: 'entrada',
     quantity: 50,
     responsible: 'João Silva',
-    invoiceNumber: 'NF-2024-001',
+    movementDate: '2024-01-20T00:00:00Z', // Example date
+    notes: 'NF-2024-001',
     createdAt: '2024-01-20T14:30:00Z',
   },
   {
@@ -86,7 +87,8 @@ export const mockMovements: Movement[] = [
     type: 'saida',
     quantity: 35,
     responsible: 'Maria Santos',
-    destination: 'Ambulatório',
+    movementDate: '2024-01-21T00:00:00Z', // Example date
+    notes: 'Saída para Ambulatório',
     createdAt: '2024-01-21T10:15:00Z',
   },
   {
@@ -96,7 +98,8 @@ export const mockMovements: Movement[] = [
     type: 'entrada',
     quantity: 100,
     responsible: 'Pedro Costa',
-    invoiceNumber: 'NF-2024-002',
+    movementDate: '2024-01-22T00:00:00Z', // Example date
+    notes: 'NF-2024-002',
     createdAt: '2024-01-22T11:15:00Z',
   },
   {
@@ -106,7 +109,8 @@ export const mockMovements: Movement[] = [
     type: 'saida',
     quantity: 55,
     responsible: 'Ana Lima',
-    destination: 'Limpeza Geral',
+    movementDate: '2024-01-23T00:00:00Z', // Example date
+    notes: 'Saída para Limpeza Geral',
     createdAt: '2024-01-23T08:30:00Z',
   },
   {
@@ -116,7 +120,8 @@ export const mockMovements: Movement[] = [
     type: 'ajuste',
     quantity: -5,
     responsible: 'Carlos Mendes',
-    justification: 'Contagem física - divergência de estoque',
+    movementDate: '2024-01-24T00:00:00Z', // Example date
+    notes: 'Contagem física - divergência de estoque',
     createdAt: '2024-01-24T16:45:00Z',
   },
 ];

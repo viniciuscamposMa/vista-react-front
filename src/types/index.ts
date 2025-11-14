@@ -33,9 +33,8 @@ export interface Movement {
   type: MovementType;
   quantity: number;
   responsible: string;
-  destination?: string;
-  invoiceNumber?: string;
-  justification?: string;
+  movementDate: string; // Date chosen by the user in the form
+  notes?: string; // General observations
   createdAt: string;
 }
 
